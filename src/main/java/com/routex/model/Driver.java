@@ -15,9 +15,17 @@ public class Driver extends User {
     private String availability;   // ONLINE | OFFLINE
     private boolean verified;
     private BigDecimal rating;
+    private Double currentLat;
+    private Double currentLng;
 
     public Driver(long id, String name, String email, String phone, String status, Timestamp createdAt,
                   String licenseNo, String vehicleType, String vehicleInfo, String availability, boolean verified, BigDecimal rating) {
+        this(id, name, email, phone, status, createdAt, licenseNo, vehicleType, vehicleInfo, availability, verified, rating, null, null);
+    }
+
+    public Driver(long id, String name, String email, String phone, String status, Timestamp createdAt,
+                  String licenseNo, String vehicleType, String vehicleInfo, String availability, boolean verified, BigDecimal rating,
+                  Double currentLat, Double currentLng) {
         super(id, name, email, phone, status, createdAt);
         this.licenseNo = licenseNo;
         this.vehicleType = vehicleType;
@@ -25,6 +33,8 @@ public class Driver extends User {
         this.availability = availability;
         this.verified = verified;
         this.rating = rating;
+        this.currentLat = currentLat;
+        this.currentLng = currentLng;
     }
 
     @Override
@@ -39,4 +49,6 @@ public class Driver extends User {
     public boolean isOnline() { return "ONLINE".equals(availability); }
     public boolean isVerified() { return verified; }
     public BigDecimal getRating() { return rating; }
+    public Double getCurrentLat() { return currentLat; }
+    public Double getCurrentLng() { return currentLng; }
 }

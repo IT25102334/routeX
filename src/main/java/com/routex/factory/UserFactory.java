@@ -48,6 +48,11 @@ public final class UserFactory {
 
     /** Builds a fully-populated Driver from a joined "users JOIN drivers" row. */
     public static Driver fromJoinedDriverRow(ResultSet rs) throws SQLException {
+        Double lat = rs.getDouble("current_lat");
+        if (rs.wasNull()) lat = null;
+        Double lng = rs.getDouble("current_lng");
+        if (rs.wasNull()) lng = null;
+
         Driver driver = new Driver(
                 rs.getLong("id"),
                 rs.getString("name"),
@@ -60,7 +65,9 @@ public final class UserFactory {
                 rs.getString("vehicle_info"),
                 rs.getString("availability"),
                 rs.getBoolean("verified"),
-                rs.getBigDecimal("rating"));
+                rs.getBigDecimal("rating"),
+                lat,
+                lng);
         driver.setPasswordHash(rs.getString("password_hash"));
         return driver;
     }
