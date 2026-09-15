@@ -23,8 +23,12 @@ public class RideDao {
     private final DatabaseConnection db = DatabaseConnection.getInstance();
 
     public long create(long riderId, String pickup, String dropoff, String rideType, String vehicleType, BigDecimal estimatedFare) throws SQLException {
-        String sql = "INSERT INTO rides(rider_id, pickup, dropoff, ride_type, vehicle_type, estimated_fare, status) " +
-                "VALUES (?, ?, ?, ?, ?, ?, 'REQUESTED')";
+        return create(riderId, pickup, dropoff, rideType, vehicleType, estimatedFare, null, null);
+    }
+
+    public long create(long riderId, String pickup, String dropoff, String rideType, String vehicleType, BigDecimal estimatedFare, Double pickupLat, Double pickupLng) throws SQLException {
+        String sql = "INSERT INTO rides(rider_id, pickup, dropoff, ride_type, vehicle_type, estimated_fare, pickup_lat, pickup_lng, status) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'REQUESTED')";
         try (Connection c = db.getConnection();
              PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setLong(1, riderId);
@@ -33,6 +37,8 @@ public class RideDao {
             ps.setString(4, rideType);
             ps.setString(5, vehicleType);
             ps.setBigDecimal(6, estimatedFare);
+            if (pickupLat != null) ps.setDouble(7, pickupLat); else ps.setNull(7, java.sql.Types.DECIMAL);
+            if (pickupLng != null) ps.setDouble(8, pickupLng); else ps.setNull(8, java.sql.Types.DECIMAL);
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 keys.next();
@@ -184,6 +190,11 @@ public class RideDao {
         ride.setCurrentLat(rs.wasNull() ? null : lat);
         double lng = rs.getDouble("current_lng");
         ride.setCurrentLng(rs.wasNull() ? null : lng);
+
+        double plat = rs.getDouble("pickup_lat");
+        ride.setPickupLat(rs.wasNull() ? null : plat);
+        double plng = rs.getDouble("pickup_lng");
+        ride.setPickupLng(rs.wasNull() ? null : plng);
 
         return ride;
     }

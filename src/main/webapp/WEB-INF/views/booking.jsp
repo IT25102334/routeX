@@ -4,6 +4,7 @@
 <head>
     <title>RouteX - Book a Ride</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
+    <script src="${pageContext.request.contextPath}/assets/js/app.js"></script>
 </head>
 <body>
 <div class="topbar">
@@ -26,6 +27,12 @@
         <form method="post" action="${pageContext.request.contextPath}/rider/book">
             <input name="pickup" type="text" placeholder="Pickup location" required>
             <input name="dropoff" type="text" placeholder="Drop-off location" required>
+
+            <div class="row">
+                <input name="lat" placeholder="Pickup latitude">
+                <input name="lng" placeholder="Pickup longitude">
+                <button type="button" onclick="randomLocation(this.form)">Simulate GPS</button>
+            </div>
 
             <label class="muted">Ride tier (affects fare)</label>
             <select name="rideType" required>

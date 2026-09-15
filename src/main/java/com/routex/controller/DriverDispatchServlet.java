@@ -25,9 +25,10 @@ import java.util.List;
  * Routes:
  *   GET  /driver/dashboard    - driver's incoming request + ride history
  *   POST /driver/availability - toggle ONLINE / OFFLINE
+ *   POST /driver/location     - update the driver's current lat/lng
  *   POST /driver/respond      - accept or reject a dispatched request
  */
-@WebServlet(urlPatterns = {"/driver/dashboard", "/driver/availability", "/driver/respond"})
+@WebServlet(urlPatterns = {"/driver/dashboard", "/driver/availability", "/driver/location", "/driver/respond"})
 public class DriverDispatchServlet extends HttpServlet {
 
     private final RideDao rideDao = new RideDao();
@@ -65,6 +66,12 @@ public class DriverDispatchServlet extends HttpServlet {
                 if ("ONLINE".equals(availability)) {
                     dispatchService.retryOldestPendingRide();
                 }
+            } else if (req.getServletPath().endsWith("location")) {
+                // Driver Matching & Dispatch: records the driver's current position
+                // so future dispatches can rank candidates by real distance.
+                double lat = Double.parseDouble(req.getParameter("lat"));
+                double lng = Double.parseDouble(req.getParameter("lng"));
+                driverDao.updateLocation(user.getId(), lat, lng);
             } else {
                 handleRespond(req, user);
             }

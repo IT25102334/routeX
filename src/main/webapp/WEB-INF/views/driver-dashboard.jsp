@@ -6,6 +6,7 @@
 <head>
     <title>RouteX - Driver Dashboard</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
+    <script src="${pageContext.request.contextPath}/assets/js/app.js"></script>
 </head>
 <body>
 <div class="topbar">
@@ -44,7 +45,16 @@
             </c:choose>
         </form>
     </div>
-
+    <div class="card">
+        <h3>My Location</h3>
+        <p class="muted">Set your current location so nearby ride requests can find you (simulated GPS for this academic prototype).</p>
+        <form method="post" action="${pageContext.request.contextPath}/driver/location" class="row">
+            <input name="lat" placeholder="Latitude" value="${driver.currentLat}">
+            <input name="lng" placeholder="Longitude" value="${driver.currentLng}">
+            <button type="button" onclick="randomLocation(this.form)">Simulate GPS</button>
+            <button type="submit" class="btn">Update Location</button>
+        </form>
+    </div>
     <div class="card">
         <h3>Incoming &amp; Active Requests</h3>
         <c:set var="hasActive" value="false"/>

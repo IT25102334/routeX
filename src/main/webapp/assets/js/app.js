@@ -26,3 +26,10 @@ function startSimulatedLocationUpdates(contextPath, rideId, startLat, startLng) 
 function startTripAutoRefresh(seconds) {
     setTimeout(function () { window.location.reload(); }, seconds * 1000);
 }
+
+// Fills a form's lat/lng inputs with a plausible Colombo-area coordinate,
+// since we don't have real GPS hardware to test with.
+function randomLocation(form) {
+    form.lat.value = (6.90 + Math.random() * 0.08).toFixed(6);
+    form.lng.value = (79.82 + Math.random() * 0.08).toFixed(6);
+}
