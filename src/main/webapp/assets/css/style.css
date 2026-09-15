@@ -1,0 +1,116 @@
+:root {
+    --brand: #2b5fd9;
+    --brand-dark: #1c3f99;
+    --bg: #f4f6fb;
+    --card-bg: #ffffff;
+    --text: #1f2430;
+    --muted: #6b7280;
+    --border: #e2e6ee;
+    --success: #1a9d5c;
+    --danger: #d64545;
+    --warning: #c98a12;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--brand);
+    color: #fff;
+    padding: 14px 24px;
+}
+
+.topbar .brand { font-size: 20px; font-weight: 700; }
+.topbar a { color: #fff; text-decoration: none; margin-left: 16px; font-size: 14px; }
+.topbar a:hover { text-decoration: underline; }
+
+.container { max-width: 1000px; margin: 24px auto; padding: 0 16px; }
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.auth.card { max-width: 380px; margin: 60px auto; text-align: center; }
+.auth .brand { font-size: 28px; font-weight: 800; color: var(--brand); }
+.muted { color: var(--muted); font-size: 14px; }
+
+form input, form select, form textarea {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    margin: 10px 0;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+form button, .btn {
+    display: inline-block;
+    background: var(--brand);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+}
+form button:hover, .btn:hover { background: var(--brand-dark); }
+
+.btn.danger { background: var(--danger); }
+.btn.success { background: var(--success); }
+.btn.secondary { background: #6b7280; }
+
+.error { color: var(--danger); font-size: 14px; }
+.success-msg { color: var(--success); font-size: 14px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+th { color: var(--muted); font-weight: 600; }
+
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #eef1f8;
+    color: var(--text);
+}
+.badge.REQUESTED, .badge.DISPATCHED { background: #fff3cd; color: var(--warning); }
+.badge.ACCEPTED, .badge.ARRIVED, .badge.IN_PROGRESS { background: #dbe8ff; color: var(--brand-dark); }
+.badge.COMPLETED { background: #dcf5e6; color: var(--success); }
+.badge.CANCELLED { background: #fbe0e0; color: var(--danger); }
+.badge.ONLINE, .badge.ACTIVE, .badge.OPEN { background: #dcf5e6; color: var(--success); }
+.badge.OFFLINE, .badge.SUSPENDED, .badge.RESOLVED { background: #f0f1f4; color: var(--muted); }
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+.metric-box {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+}
+.metric-box .value { font-size: 26px; font-weight: 700; color: var(--brand); }
+.metric-box .label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+.stars { color: #e0a800; font-size: 18px; }

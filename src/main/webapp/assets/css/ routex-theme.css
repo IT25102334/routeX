@@ -1,0 +1,250 @@
+/* ============================================
+   RouteX Theme — Deep Blue + Yellow Accent
+   Professional transport-dispatch style
+   ============================================ */
+
+:root {
+  --rx-navy: #0d1b3e;
+  --rx-navy-light: #16255c;
+  --rx-blue: #1e3a8a;
+  --rx-blue-light: #3b5bdb;
+  --rx-yellow: #ffc107;
+  --rx-yellow-dark: #e0a800;
+  --rx-bg: #f4f6fb;
+  --rx-card: #ffffff;
+  --rx-text: #1a1f36;
+  --rx-text-muted: #6b7280;
+  --rx-border: #e5e7eb;
+  --rx-success: #16a34a;
+  --rx-warning: #f59e0b;
+  --rx-danger: #dc2626;
+  --rx-radius: 14px;
+  --rx-shadow: 0 4px 14px rgba(13, 27, 62, 0.08);
+  --rx-shadow-hover: 0 8px 24px rgba(13, 27, 62, 0.14);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--rx-bg);
+  color: var(--rx-text);
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ---------- Navbar ---------- */
+.navbar {
+  background: linear-gradient(90deg, var(--rx-navy) 0%, var(--rx-navy-light) 100%);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+
+.navbar .brand {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar .brand::before {
+  content: "●";
+  color: var(--rx-yellow);
+  font-size: 14px;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-links a {
+  color: #cfd8f0;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  transition: color 0.2s ease;
+  padding-bottom: 4px;
+  border-bottom: 2px solid transparent;
+}
+
+.navbar-links a:hover,
+.navbar-links a.active {
+  color: #fff;
+  border-bottom: 2px solid var(--rx-yellow);
+}
+
+/* ---------- Page container ---------- */
+.rx-container {
+  max-width: 1100px;
+  margin: 32px auto;
+  padding: 0 20px;
+}
+
+/* ---------- Cards ---------- */
+.rx-card {
+  background: var(--rx-card);
+  border-radius: var(--rx-radius);
+  box-shadow: var(--rx-shadow);
+  padding: 28px;
+  margin-bottom: 24px;
+  border: 1px solid var(--rx-border);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.rx-card:hover {
+  box-shadow: var(--rx-shadow-hover);
+}
+
+.rx-card h2, .rx-card h3 {
+  margin-top: 0;
+  color: var(--rx-navy);
+}
+
+.rx-welcome {
+  background: linear-gradient(135deg, var(--rx-navy) 0%, var(--rx-blue) 100%);
+  color: #fff;
+  border: none;
+}
+
+.rx-welcome h2 {
+  color: #fff;
+}
+
+.rx-welcome p {
+  color: #d6def5;
+}
+
+/* ---------- Buttons ---------- */
+.rx-btn {
+  display: inline-block;
+  padding: 11px 22px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.rx-btn-primary {
+  background: var(--rx-yellow);
+  color: var(--rx-navy);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.35);
+}
+
+.rx-btn-primary:hover {
+  background: var(--rx-yellow-dark);
+  transform: translateY(-1px);
+}
+
+.rx-btn-secondary {
+  background: transparent;
+  color: var(--rx-blue);
+  border: 1.5px solid var(--rx-blue);
+}
+
+.rx-btn-secondary:hover {
+  background: var(--rx-blue);
+  color: #fff;
+}
+
+.rx-btn-danger {
+  background: #fde8e8;
+  color: var(--rx-danger);
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.rx-btn-danger:hover {
+  background: var(--rx-danger);
+  color: #fff;
+}
+
+/* ---------- Table ---------- */
+.rx-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rx-table th {
+  text-align: left;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--rx-text-muted);
+  padding: 12px 14px;
+  border-bottom: 2px solid var(--rx-border);
+}
+
+.rx-table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--rx-border);
+  font-size: 14px;
+}
+
+.rx-table tr:hover td {
+  background: #fafbff;
+}
+
+/* ---------- Status badges ---------- */
+.rx-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.rx-badge-requested { background: #fff3cd; color: #92710a; }
+.rx-badge-accepted  { background: #dbeafe; color: #1e40af; }
+.rx-badge-progress  { background: #e0e7ff; color: var(--rx-blue-light); }
+.rx-badge-completed { background: #dcfce7; color: var(--rx-success); }
+.rx-badge-cancelled { background: #fee2e2; color: var(--rx-danger); }
+
+/* ---------- Links inline ---------- */
+.rx-link {
+  color: var(--rx-blue-light);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.rx-link:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Forms ---------- */
+.rx-input, select.rx-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--rx-border);
+  border-radius: 10px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  transition: border-color 0.2s ease;
+}
+
+.rx-input:focus {
+  outline: none;
+  border-color: var(--rx-blue-light);
+}
+
+label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rx-text);
+  margin-bottom: 6px;
+  display: block;
+}
