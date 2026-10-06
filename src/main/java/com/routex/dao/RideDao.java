@@ -15,20 +15,17 @@ import java.util.Optional;
 
 /**
  * Data access for the "rides" table. Touched by Ride Booking & Fare
- * Estimation (create), Driver Matching & Dispatch (assignDriver) and
- * Live Trip Management (updateStatus / updateLocation / SOS).
+ * Estimation (create, update, delete), Driver Matching & Dispatch
+ * (assignDriver / recordRejection) and Live Trip Management
+ * (updateStatus / updateLocation / SOS).
  */
 public class RideDao {
 
     private final DatabaseConnection db = DatabaseConnection.getInstance();
 
     public long create(long riderId, String pickup, String dropoff, String rideType, String vehicleType, BigDecimal estimatedFare) throws SQLException {
-        return create(riderId, pickup, dropoff, rideType, vehicleType, estimatedFare, null, null);
-    }
-
-    public long create(long riderId, String pickup, String dropoff, String rideType, String vehicleType, BigDecimal estimatedFare, Double pickupLat, Double pickupLng) throws SQLException {
-        String sql = "INSERT INTO rides(rider_id, pickup, dropoff, ride_type, vehicle_type, estimated_fare, pickup_lat, pickup_lng, status) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'REQUESTED')";
+        String sql = "INSERT INTO rides(rider_id, pickup, dropoff, ride_type, vehicle_type, estimated_fare, status) " +
+                "VALUES (?, ?, ?, ?, ?, ?, 'REQUESTED')";
         try (Connection c = db.getConnection();
              PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setLong(1, riderId);
@@ -37,13 +34,32 @@ public class RideDao {
             ps.setString(4, rideType);
             ps.setString(5, vehicleType);
             ps.setBigDecimal(6, estimatedFare);
-            if (pickupLat != null) ps.setDouble(7, pickupLat); else ps.setNull(7, java.sql.Types.DECIMAL);
-            if (pickupLng != null) ps.setDouble(8, pickupLng); else ps.setNull(8, java.sql.Types.DECIMAL);
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 keys.next();
                 return keys.getLong(1);
             }
+        }
+    }
+
+    /**
+     * UC-01 Modify Booking - updates an existing REQUESTED ride's trip
+     * details and fare in place, rather than deleting and recreating it.
+     * The caller (servlet) is responsible for confirming the ride is still
+     * REQUESTED and owned by the requesting rider before calling this.
+     */
+    public void update(long rideId, String pickup, String dropoff, String rideType, String vehicleType, BigDecimal estimatedFare) throws SQLException {
+        String sql = "UPDATE rides SET pickup = ?, dropoff = ?, ride_type = ?, vehicle_type = ?, estimated_fare = ? " +
+                "WHERE id = ? AND status = 'REQUESTED'";
+        try (Connection c = db.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, pickup);
+            ps.setString(2, dropoff);
+            ps.setString(3, rideType);
+            ps.setString(4, vehicleType);
+            ps.setBigDecimal(5, estimatedFare);
+            ps.setLong(6, rideId);
+            ps.executeUpdate();
         }
     }
 
@@ -58,17 +74,30 @@ public class RideDao {
         }
     }
 
-    /** Driver accepts a dispatched ride. */
     public void markAccepted(long rideId) throws SQLException {
         updateStatus(rideId, "ACCEPTED");
     }
 
-    /** Driver rejects a dispatched ride - free it up so it can be re-dispatched to the next driver. */
     public void revertToRequested(long rideId) throws SQLException {
         String sql = "UPDATE rides SET driver_id = NULL, status = 'REQUESTED' WHERE id = ?";
         try (Connection c = db.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setLong(1, rideId);
+            ps.executeUpdate();
+        }
+    }
+
+    /**
+     * Driver Matching & Dispatch: remembers that this driver rejected
+     * this ride, so the next match excludes them instead of looping
+     * the ride right back to the same driver.
+     */
+    public void recordRejection(long rideId, long driverId) throws SQLException {
+        String sql = "INSERT IGNORE INTO ride_rejections (ride_id, driver_id) VALUES (?, ?)";
+        try (Connection c = db.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setLong(1, rideId);
+            ps.setLong(2, driverId);
             ps.executeUpdate();
         }
     }
@@ -108,6 +137,15 @@ public class RideDao {
         }
     }
 
+    public boolean delete(long rideId) throws SQLException {
+        String sql = "DELETE FROM rides WHERE id = ?";
+        try (Connection c = db.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setLong(1, rideId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     public Optional<Ride> findById(long id) throws SQLException {
         String sql = "SELECT * FROM rides WHERE id = ?";
         try (Connection c = db.getConnection();
@@ -127,7 +165,6 @@ public class RideDao {
         return queryList("SELECT * FROM rides WHERE driver_id = ? ORDER BY id DESC", driverId);
     }
 
-    /** Rides waiting to be dispatched (used by Driver Matching & Dispatch). */
     public List<Ride> findRequested() throws SQLException {
         List<Ride> rides = new ArrayList<>();
         try (Connection c = db.getConnection();
@@ -190,11 +227,6 @@ public class RideDao {
         ride.setCurrentLat(rs.wasNull() ? null : lat);
         double lng = rs.getDouble("current_lng");
         ride.setCurrentLng(rs.wasNull() ? null : lng);
-
-        double plat = rs.getDouble("pickup_lat");
-        ride.setPickupLat(rs.wasNull() ? null : plat);
-        double plng = rs.getDouble("pickup_lng");
-        ride.setPickupLng(rs.wasNull() ? null : plng);
 
         return ride;
     }
