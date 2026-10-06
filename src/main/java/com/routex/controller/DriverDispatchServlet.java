@@ -25,10 +25,9 @@ import java.util.List;
  * Routes:
  *   GET  /driver/dashboard    - driver's incoming request + ride history
  *   POST /driver/availability - toggle ONLINE / OFFLINE
- *   POST /driver/location     - update the driver's current lat/lng
  *   POST /driver/respond      - accept or reject a dispatched request
  */
-@WebServlet(urlPatterns = {"/driver/dashboard", "/driver/availability", "/driver/location", "/driver/respond"})
+@WebServlet(urlPatterns = {"/driver/dashboard", "/driver/availability", "/driver/respond"})
 public class DriverDispatchServlet extends HttpServlet {
 
     private final RideDao rideDao = new RideDao();
@@ -66,12 +65,6 @@ public class DriverDispatchServlet extends HttpServlet {
                 if ("ONLINE".equals(availability)) {
                     dispatchService.retryOldestPendingRide();
                 }
-            } else if (req.getServletPath().endsWith("location")) {
-                // Driver Matching & Dispatch: records the driver's current position
-                // so future dispatches can rank candidates by real distance.
-                double lat = Double.parseDouble(req.getParameter("lat"));
-                double lng = Double.parseDouble(req.getParameter("lng"));
-                driverDao.updateLocation(user.getId(), lat, lng);
             } else {
                 handleRespond(req, user);
             }
@@ -94,7 +87,9 @@ public class DriverDispatchServlet extends HttpServlet {
             // UC-02 step 6: system updates the ride status to ACCEPTED and links the driver.
             rideDao.markAccepted(rideId);
         } else {
-            // UC-02 extension 5a: driver declines - re-open the request and try the next best driver.
+            // UC-02 extension 5a: driver declines - remember it so they're excluded
+            // from the very next match, then re-open the request for the next best driver.
+            rideDao.recordRejection(rideId, user.getId());
             rideDao.revertToRequested(rideId);
             dispatchService.dispatchRide(rideId);
         }
