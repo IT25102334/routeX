@@ -55,17 +55,31 @@
     <div class="card">
         <h3>Transaction History</h3>
         <table>
-            <tr><th>Type</th><th>Amount</th><th>Note</th><th>Date</th></tr>
+            <tr><th>Type</th><th>Amount</th><th>Note</th><th>Date</th><th>Actions</th></tr>
             <c:forEach var="tx" items="${transactions}">
                 <tr>
                     <td><span class="badge">${tx.type}</span></td>
                     <td><fmt:formatNumber value="${tx.amount}" type="currency" currencySymbol="Rs. "/></td>
                     <td>${tx.note}</td>
                     <td>${tx.createdAt}</td>
+                    <td>
+                        <form method="post" action="${pageContext.request.contextPath}/rider/wallet" style="display:inline-flex;gap:4px;">
+                            <input type="hidden" name="action" value="EDIT_NOTE">
+                            <input type="hidden" name="txId" value="${tx.id}">
+                            <input type="text" name="note" value="${tx.note}" placeholder="Edit note" required>
+                            <button type="submit">Save</button>
+                        </form>
+                        <form method="post" action="${pageContext.request.contextPath}/rider/wallet" style="display:inline;"
+                              onsubmit="return confirm('Delete this transaction from your history?');">
+                            <input type="hidden" name="action" value="DELETE_TX">
+                            <input type="hidden" name="txId" value="${tx.id}">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
                 </tr>
             </c:forEach>
             <c:if test="${empty transactions}">
-                <tr><td colspan="4" class="muted">No transactions yet.</td></tr>
+                <tr><td colspan="5" class="muted">No transactions yet.</td></tr>
             </c:if>
         </table>
     </div>
