@@ -12,11 +12,10 @@ import java.util.Optional;
  * Module: Driver Matching & Dispatch (Abeygunawardhana S.N.J. - IT25100107)
  *
  * Implements UC-02 (Match and Dispatch Driver): as soon as a ride is
- * REQUESTED, find the nearest available verified online driver whose
- * vehicle type matches, and dispatch the request to them. Distance is
- * calculated from real pickup/driver coordinates when both are known;
- * otherwise the highest-rated available driver is used as a fallback.
- * The driver then explicitly accepts or rejects it through
+ * REQUESTED, find the nearest (simulated by highest-rated) available
+ * verified online driver whose vehicle type matches - excluding anyone
+ * who already rejected this specific ride - and dispatch the request to
+ * them. The driver then explicitly accepts or rejects it through
  * DriverDispatchServlet.
  */
 public class DispatchService {
@@ -33,8 +32,7 @@ public class DispatchService {
         if (ride == null) {
             return false;
         }
-        Optional<Long> driverId = driverDao.findBestAvailableDriver(
-                ride.getVehicleType(), ride.getPickupLat(), ride.getPickupLng());
+        Optional<Long> driverId = driverDao.findBestAvailableDriver(ride.getVehicleType(), rideId);
         if (driverId.isEmpty()) {
             return false;
         }
