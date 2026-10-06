@@ -103,7 +103,7 @@ public class WalletDao {
 
     public List<WalletTransaction> history(long userId) throws SQLException {
         List<WalletTransaction> transactions = new ArrayList<>();
-        String sql = "SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY id DESC";
+        String sql = "SELECT * FROM wallet_transactions WHERE user_id = ? AND deleted = FALSE ORDER BY id DESC";
         try (Connection c = db.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setLong(1, userId);
@@ -116,6 +116,40 @@ public class WalletDao {
             }
         }
         return transactions;
+    }
+
+    /**
+     * Updates the note on an existing transaction. This is the module's
+     * standalone UPDATE operation (distinct from the balance-changing
+     * updates above) — it edits a field on an already-existing row
+     * without touching the balance or points.
+     */
+    public boolean updateTransactionNote(long transactionId, long userId, String newNote) throws SQLException {
+        if (newNote == null || newNote.isBlank()) {
+            throw new IllegalArgumentException("Note cannot be empty");
+        }
+        String sql = "UPDATE wallet_transactions SET note = ? WHERE id = ? AND user_id = ? AND deleted = FALSE";
+        try (Connection c = db.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, newNote);
+            ps.setLong(2, transactionId);
+            ps.setLong(3, userId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    /**
+     * Soft-deletes a transaction: marks it hidden instead of removing the
+     * row, so the audit trail is preserved. history() filters these out.
+     */
+    public boolean softDeleteTransaction(long transactionId, long userId) throws SQLException {
+        String sql = "UPDATE wallet_transactions SET deleted = TRUE WHERE id = ? AND user_id = ? AND deleted = FALSE";
+        try (Connection c = db.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setLong(1, transactionId);
+            ps.setLong(2, userId);
+            return ps.executeUpdate() > 0;
+        }
     }
 
     private void applyBalanceChange(long userId, BigDecimal delta, String type, String note) throws SQLException {
