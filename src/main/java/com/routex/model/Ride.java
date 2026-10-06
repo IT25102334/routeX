@@ -24,6 +24,8 @@ public class Ride {
     private String status;
     private Double currentLat;
     private Double currentLng;
+    private Double pickupLat;
+    private Double pickupLng;
     private boolean sosTriggered;
     private Timestamp requestedAt;
     private Timestamp startedAt;
@@ -67,6 +69,11 @@ public class Ride {
 
     public Double getCurrentLng() { return currentLng; }
     public void setCurrentLng(Double currentLng) { this.currentLng = currentLng; }
+    public Double getPickupLat() { return pickupLat; }
+    public void setPickupLat(Double pickupLat) { this.pickupLat = pickupLat; }
+
+    public Double getPickupLng() { return pickupLng; }
+    public void setPickupLng(Double pickupLng) { this.pickupLng = pickupLng; }
 
     public boolean isSosTriggered() { return sosTriggered; }
     public void setSosTriggered(boolean sosTriggered) { this.sosTriggered = sosTriggered; }

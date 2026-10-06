@@ -76,6 +76,8 @@ public class RideBookingServlet extends HttpServlet {
         String dropoff = req.getParameter("dropoff");
         String rideType = req.getParameter("rideType");
         String vehicleType = req.getParameter("vehicleType");
+        Double pickupLat = parseOrNull(req.getParameter("lat"));
+        Double pickupLng = parseOrNull(req.getParameter("lng"));
 
         // UC-01 extension 2a: reject an incomplete booking form.
         if (isBlank(pickup) || isBlank(dropoff) || isBlank(rideType) || isBlank(vehicleType)) {
@@ -88,8 +90,7 @@ public class RideBookingServlet extends HttpServlet {
         BigDecimal estimatedFare = fareCalculator.estimate(pickup, dropoff, rideType);
 
         // UC-01 steps 5-6: rider confirms, ride record is created with status REQUESTED.
-        long rideId = rideDao.create(user.getId(), pickup, dropoff, rideType, vehicleType, estimatedFare);
-
+        long rideId = rideDao.create(user.getId(), pickup, dropoff, rideType, vehicleType, estimatedFare, pickupLat, pickupLng);
         // Trigger UC-02: hand the freshly-requested ride to Driver Matching & Dispatch.
         dispatchService.dispatchRide(rideId);
 
@@ -109,6 +110,11 @@ public class RideBookingServlet extends HttpServlet {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private Double parseOrNull(String value) {
+        if (value == null || value.trim().isEmpty()) return null;
+        try { return Double.parseDouble(value); } catch (NumberFormatException e) { return null; }
     }
 
     private User currentUser(HttpServletRequest req) {
