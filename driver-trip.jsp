@@ -24,8 +24,12 @@
         <p><strong>Drop-off:</strong> ${ride.dropoff}</p>
         <p><strong>Fare:</strong> <fmt:formatNumber value="${ride.estimatedFare}" type="currency" currencySymbol="Rs. "/></p>
 
-        <c:if test="${ride.sosTriggered}">
-            <p class="error">🚨 Rider has triggered an SOS alert on this trip.</p>
+        <c:if test="${not empty sosAlerts}">
+            <c:forEach var="alert" items="${sosAlerts}">
+                <div class="card" style="border-color:#f5c2c2;background:#fff5f5;margin-bottom:12px;">
+                    <p class="error" style="margin:0;">🚨 ${alert.message} &mdash; ${alert.triggeredAt}</p>
+                </div>
+            </c:forEach>
         </c:if>
 
         <form method="post" action="${pageContext.request.contextPath}/driver/trip">
