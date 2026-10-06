@@ -55,6 +55,19 @@ public class WalletServlet extends HttpServlet {
                 if (!redeemed) {
                     req.getSession().setAttribute("walletError", "Not enough points to redeem (minimum 100).");
                 }
+            } else if ("EDIT_NOTE".equals(action)) {
+                long txId = Long.parseLong(req.getParameter("txId"));
+                String note = req.getParameter("note");
+                boolean updated = walletDao.updateTransactionNote(txId, user.getId(), note);
+                if (!updated) {
+                    req.getSession().setAttribute("walletError", "Could not update that transaction's note.");
+                }
+            } else if ("DELETE_TX".equals(action)) {
+                long txId = Long.parseLong(req.getParameter("txId"));
+                boolean deleted = walletDao.softDeleteTransaction(txId, user.getId());
+                if (!deleted) {
+                    req.getSession().setAttribute("walletError", "Could not delete that transaction.");
+                }
             }
         } catch (IllegalArgumentException | SQLException e) {
             req.getSession().setAttribute("walletError", "Could not complete that wallet action: " + e.getMessage());
