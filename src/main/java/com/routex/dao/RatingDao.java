@@ -70,6 +70,24 @@ public class RatingDao {
         return cleaned;
     }
 
+    /**
+     * Checks whether a review contains blocked/offensive words.
+     * Used to show a visible validation error to the user and REJECT the
+     * submission, instead of silently censoring it (extension 3a in UC-05).
+     */
+    public boolean containsBadWords(String review) {
+        if (review == null) {
+            return false;
+        }
+        String[] blocked = {"idiot", "stupid", "hate"};
+        for (String word : blocked) {
+            if (review.toLowerCase().contains(word.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** Ratings a given user has submitted about others (as opposed to received). */
     public List<Rating> findSubmittedBy(long fromUserId) throws SQLException {
         List<Rating> ratings = new ArrayList<>();
@@ -126,6 +144,73 @@ public class RatingDao {
             } catch (SQLException e) {
                 c.rollback();
                 throw e;
+            }
+        }
+    }
+
+    /**
+     * Completes the CRUD set for this module: lets the person who wrote a
+     * review change the stars/text of a rating they previously submitted
+     * (e.g. they rated too hastily, or want to update their comment).
+     * Only the original author can update their own rating. The target
+     * driver's average rating is recalculated afterwards in the same
+     * transaction, so it never drifts out of sync with the real reviews.
+     */
+    public boolean update(long ratingId, long requestingUserId, int stars, String review) throws SQLException {
+        if (stars < 1 || stars > 5) {
+            throw new IllegalArgumentException("Star rating must be between 1 and 5");
+        }
+        String cleanReview = sanitize(review);
+
+        try (Connection c = db.getConnection()) {
+            c.setAutoCommit(false);
+            try {
+                long toUserId;
+                String find = "SELECT to_user_id FROM ratings WHERE id = ? AND from_user_id = ?";
+                try (PreparedStatement ps = c.prepareStatement(find)) {
+                    ps.setLong(1, ratingId);
+                    ps.setLong(2, requestingUserId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (!rs.next()) {
+                            c.rollback();
+                            return false; // not found, or doesn't belong to this user
+                        }
+                        toUserId = rs.getLong(1);
+                    }
+                }
+
+                String updateSql = "UPDATE ratings SET stars = ?, review = ? WHERE id = ?";
+                try (PreparedStatement ps = c.prepareStatement(updateSql)) {
+                    ps.setInt(1, stars);
+                    ps.setString(2, cleanReview);
+                    ps.setLong(3, ratingId);
+                    ps.executeUpdate();
+                }
+
+                String recalc = "UPDATE drivers SET rating = (SELECT COALESCE(AVG(stars), 5) FROM ratings WHERE to_user_id = ?) WHERE user_id = ?";
+                try (PreparedStatement ps = c.prepareStatement(recalc)) {
+                    ps.setLong(1, toUserId);
+                    ps.setLong(2, toUserId);
+                    ps.executeUpdate();
+                }
+                c.commit();
+                return true;
+            } catch (SQLException e) {
+                c.rollback();
+                throw e;
+            }
+        }
+    }
+
+    /** Fetches a single rating, but only if it belongs to the requesting user (used to pre-fill the edit form). */
+    public Rating findByIdForOwner(long ratingId, long requestingUserId) throws SQLException {
+        String sql = "SELECT * FROM ratings WHERE id = ? AND from_user_id = ?";
+        try (Connection c = db.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setLong(1, ratingId);
+            ps.setLong(2, requestingUserId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? map(rs) : null;
             }
         }
     }
