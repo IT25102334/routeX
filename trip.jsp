@@ -29,13 +29,29 @@
             <p class="muted">Live location (simulated GPS): ${ride.currentLat}, ${ride.currentLng}</p>
         </c:if>
 
-        <c:if test="${ride.sosTriggered}">
-            <p class="error">🚨 SOS alert active for this trip. Admin has been notified.</p>
+        <c:if test="${not empty sosAlerts}">
+            <c:forEach var="alert" items="${sosAlerts}">
+                <p class="error">🚨 SOS alert active for this trip: "${alert.message}" (triggered ${alert.triggeredAt}). Admin has been notified.</p>
+                <form method="post" action="${pageContext.request.contextPath}/rider/sos">
+                    <input type="hidden" name="rideId" value="${ride.id}">
+                    <input type="hidden" name="action" value="RESOLVE">
+                    <input type="hidden" name="alertId" value="${alert.id}">
+                    <button type="submit" class="btn secondary">I'm safe now - resolve this SOS</button>
+                </form>
+            </c:forEach>
+        </c:if>
+
+        <c:if test="${not empty param.sosError}">
+            <p class="error">${param.sosError}</p>
         </c:if>
 
         <c:if test="${ride.status == 'IN_PROGRESS' || ride.status == 'ARRIVED' || ride.status == 'ACCEPTED'}">
             <form method="post" action="${pageContext.request.contextPath}/rider/sos">
                 <input type="hidden" name="rideId" value="${ride.id}">
+                <label for="sosReason" class="muted">Describe the emergency:</label>
+                <textarea id="sosReason" name="reason" rows="2"
+                          placeholder="e.g. Driver is driving recklessly"
+                          required minlength="5" maxlength="200"></textarea>
                 <button type="submit" class="btn danger">🚨 Trigger SOS</button>
             </form>
         </c:if>
