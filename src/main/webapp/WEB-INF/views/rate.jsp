@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!doctype html>
 <html>
 <head>
@@ -19,6 +20,10 @@
         <h2>Rate Trip #${ride.id}</h2>
         <p class="muted">${ride.pickup} &rarr; ${ride.dropoff}</p>
 
+        <c:if test="${not empty error}">
+            <p style="color:#c0392b;background:#fdecea;border:1px solid #c0392b;padding:8px 12px;border-radius:4px;">${error}</p>
+        </c:if>
+
         <form method="post" action="${pageContext.request.contextPath}/rider/rate">
             <input type="hidden" name="rideId" value="${ride.id}">
 
@@ -31,7 +36,7 @@
                 <option value="1">★ Very Poor</option>
             </select>
 
-            <textarea name="review" rows="4" placeholder="Optional review (e.g. 'Clean car', 'Safe driving')"></textarea>
+            <textarea name="review" rows="4" placeholder="Optional review (e.g. 'Clean car', 'Safe driving')">${review}</textarea>
 
             <button type="submit">Submit Rating</button>
         </form>
