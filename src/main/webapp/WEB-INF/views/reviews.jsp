@@ -29,8 +29,10 @@
                     <td>${rev.review}</td>
                     <td>${rev.createdAt}</td>
                     <td>
+                        <a href="${pageContext.request.contextPath}/rider/rate-edit?ratingId=${rev.id}"
+                           class="btn" style="padding:2px 8px;font-size:12px;">Edit</a>
                         <form method="post" action="${pageContext.request.contextPath}/rider/rate-delete"
-                              onsubmit="return confirm('Delete this review?');">
+                              onsubmit="return confirm('Delete this review?');" style="display:inline;">
                             <input type="hidden" name="ratingId" value="${rev.id}">
                             <button type="submit" class="btn danger" style="padding:2px 8px;font-size:12px;">Delete</button>
                         </form>
@@ -45,3 +47,4 @@
 </div>
 </body>
 </html>
+
